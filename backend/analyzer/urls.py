@@ -33,6 +33,7 @@ from .views import (
     webhook_detail,
     test_webhook,
     import_jd_url_view,
+    captcha_challenge_view,
 )
 from .badge_views import manage_resume_badge, resume_score_badge
 
@@ -50,6 +51,8 @@ urlpatterns = [
     path("skills-leaderboard/", skills_leaderboard_view),
     path("unsubscribe/", unsubscribe_digest_view),
     path("account/export/", export_user_data, name="export_user_data"),
+
+    path("captcha/", captcha_challenge_view),
 
     path("auth/signup/", signup),
     path("auth/login/", CustomTokenObtainPairView.as_view()),
