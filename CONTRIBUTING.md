@@ -20,6 +20,7 @@ Please read this guide before contributing.
 - Coding Standards
 - Reporting Issues
 - Pull Request Process
+- Semantic Versioning
 - Contributor Checklist
 - Need Help?
 
@@ -291,6 +292,12 @@ Example:
 ```
 Closes #129
 ```
+
+---
+
+# Semantic Versioning
+
+This project follows **Semantic Versioning (SemVer) 2.0.0**. For guidelines on when to bump version numbers, the release checklist protocol, and Git release tagging mechanics, refer to the [Semantic Versioning Guide](docs/VERSIONING.md).
 
 ---
 

@@ -3,7 +3,7 @@ import { StatCard, QuestionCard, SessionCard, CompanyCard, STARCard, StreakCard 
 import { BarChart, DonutChart, TrendLine, RadarChart } from './InterviewPrepCharts';
 import { InterviewPrepTimeline } from './InterviewPrepTimeline';
 import { getQuestions, getCompanyProfiles, getPracticeSessions, getSTARStories, getStreak, getAuditLogs, getMonthlyTrends } from './InterviewPrepEngine';
-import { CATEGORY_COLORS, CATEGORY_ICONS, DIFFICULTY_COLORS, STATUS_COLORS, ROUND_COLORS, getScoreColor } from './interviewPrepTypes';
+import { CATEGORY_COLORS, DIFFICULTY_COLORS } from './interviewPrepTypes';
 
 const TABS = ['Overview', 'Questions', 'Practice', 'Companies', 'STAR Stories', 'Progress', 'Mock Interview', 'Timeline'];
 

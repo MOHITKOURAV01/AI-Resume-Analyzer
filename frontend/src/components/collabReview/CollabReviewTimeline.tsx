@@ -1,5 +1,5 @@
 import React from 'react';
-import { ReviewAuditLog } from './collabReviewTypes';
+import type { ReviewAuditLog } from './collabReviewTypes';
 
 interface CollabReviewTimelineProps {
   logs: ReviewAuditLog[];

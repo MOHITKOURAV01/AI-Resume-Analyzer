@@ -1,8 +1,8 @@
-import {
+import type {
   JobPosting, JobKeyword, SectionScore, MatchScoreBreakdown, ResumeJobMatch,
-  RecommendedEdit, CompanyMatchHistory, MatchTrend, JobMatchAuditLog,
-  gradeFromScore
+  RecommendedEdit, CompanyMatchHistory, MatchTrend, JobMatchAuditLog
 } from './jobMatchTypes';
+import { gradeFromScore } from './jobMatchTypes';
 
 export function getJobPostings(): JobPosting[] {
   return [

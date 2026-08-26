@@ -1,5 +1,5 @@
 import React from 'react';
-import { JobMatchAuditLog } from './jobMatchTypes';
+import type { JobMatchAuditLog } from './jobMatchTypes';
 
 interface JobMatchTimelineProps {
   logs: JobMatchAuditLog[];

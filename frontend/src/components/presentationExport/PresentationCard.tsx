@@ -1,6 +1,8 @@
 import React from 'react';
+import type {
+  ResumeTemplate, ExportJob, SectionOptimization, DesignElement
+} from './presentationTypes';
 import {
-  ResumeTemplate, ExportJob, SectionOptimization, DesignElement,
   STYLE_COLORS, STYLE_ICONS, LAYOUT_ICONS, FORMAT_COLORS,
   STATUS_COLORS, getScoreColor, formatFileSize
 } from './presentationTypes';

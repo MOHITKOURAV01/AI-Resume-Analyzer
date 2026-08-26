@@ -1,4 +1,4 @@
-import {
+import type {
   InterviewQuestion, PracticeSession, InterviewCompanyProfile,
   STARStory, PrepAuditLog, PrepStreak
 } from './interviewPrepTypes';

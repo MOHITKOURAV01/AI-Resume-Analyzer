@@ -1,5 +1,5 @@
 import React from 'react';
-import { SkillGapAuditLog } from './skillGapTypes';
+import type { SkillGapAuditLog } from './skillGapTypes';
 
 interface SkillGapAuditTimelineProps {
   logs: SkillGapAuditLog[];

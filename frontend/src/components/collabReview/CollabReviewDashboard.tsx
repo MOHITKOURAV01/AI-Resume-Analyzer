@@ -3,13 +3,13 @@ import {
   StatCard, ReviewerCard, ReviewRequestCard, FeedbackCard, CommentCard,
   LeaderboardCard, ActivityCard
 } from './CollabReviewCard';
-import { BarChart, DonutChart, TrendLine, RadarChart } from './CollabReviewCharts';
+import {  DonutChart, TrendLine, RadarChart } from './CollabReviewCharts';
 import { CollabReviewTimeline } from './CollabReviewTimeline';
 import {
   getReviewers, getReviewRequests, getFeedbackItems, getInlineComments,
   getReviewSummary, getLeaderboard, getActivityLog, getAuditLogs, getMonthlyTrends
 } from './CollabReviewEngine';
-import { SEVERITY_COLORS, CATEGORY_ICONS, STATUS_COLORS, getScoreColor } from './collabReviewTypes';
+import { SEVERITY_COLORS, STATUS_COLORS,} from './collabReviewTypes';
 
 const TABS = ['Overview', 'Review Requests', 'Feedback', 'Comments', 'Reviewers', 'Leaderboard', 'Activity', 'Timeline'];
 
@@ -40,9 +40,9 @@ const CollabReviewDashboard: React.FC = () => {
     feedbackItems.reduce((acc, f) => { acc[f.severity] = (acc[f.severity] || 0) + 1; return acc; }, {} as Record<string, number>)
   ).map(([label, value]) => ({ label, value, color: SEVERITY_COLORS[label as keyof typeof SEVERITY_COLORS] || '#6b7280' }));
 
-  const categoryData = Object.entries(
-    feedbackItems.reduce((acc, f) => { acc[f.category] = (acc[f.category] || 0) + 1; return acc; }, {} as Record<string, number>)
-  ).map(([label, value]) => ({ label, value, color: '#6366f1' }));
+  // const categoryData = Object.entries(
+  //   feedbackItems.reduce((acc, f) => { acc[f.category] = (acc[f.category] || 0) + 1; return acc; }, {} as Record<string, number>)
+  // ).map(([label, value]) => ({ label, value, color: '#6366f1' }));
 
   const radarData = selectedSummary.categoryScores.map(c => ({
     label: c.category, value: c.score, max: 100

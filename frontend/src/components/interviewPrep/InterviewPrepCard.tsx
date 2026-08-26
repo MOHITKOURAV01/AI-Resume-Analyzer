@@ -1,6 +1,8 @@
 import React from 'react';
+import type {
+  InterviewQuestion, PracticeSession, InterviewCompanyProfile, STARStory
+} from './interviewPrepTypes';
 import {
-  InterviewQuestion, PracticeSession, InterviewCompanyProfile, STARStory,
   DIFFICULTY_COLORS, CATEGORY_COLORS, CATEGORY_ICONS, ROUND_COLORS,
   STATUS_COLORS, COMPANY_TYPE_ICONS, STAR_COLORS, formatTime, getScoreColor
 } from './interviewPrepTypes';

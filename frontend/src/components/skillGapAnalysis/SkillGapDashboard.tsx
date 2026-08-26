@@ -4,16 +4,18 @@ import {
   RecommendationCard, OverlapCard
 } from './SkillGapCard';
 import {
-  BarChart, DonutChart, TrendLine, RadarChart, GapComparisonChart
+  DonutChart, TrendLine, RadarChart, GapComparisonChart
 } from './SkillGapCharts';
 import { SkillGapAuditTimeline } from './SkillGapTimeline';
 import {
   getUserSkills, getTargetSkills, getSkillGaps, getCareerPaths,
   getOverlapAnalysis, getRecommendations, getAuditLogs, getMonthlyTrends
 } from './SkillGapEngine';
-import {
-  SkillGapFilterQuery, CATEGORY_COLORS, SEVERITY_COLORS, PROFICIENCY_COLORS,
+import type {
   GapSeverity, SkillCategory
+} from './skillGapTypes';
+import {
+  CATEGORY_COLORS, SEVERITY_COLORS, PROFICIENCY_COLORS
 } from './skillGapTypes';
 
 const TABS = ['Overview', 'My Skills', 'Skill Gaps', 'Career Paths', 'Learning', 'Recommendations', 'Timeline'];
@@ -27,9 +29,9 @@ const SkillGapDashboard: React.FC = () => {
   const userSkills = useMemo(() => getUserSkills(), []);
   const targetSkills = useMemo(() => getTargetSkills(), []);
   const gaps = useMemo(() => getSkillGaps(userSkills, targetSkills), [userSkills, targetSkills]);
-  const careerPaths = useMemo(() => getCareerPaths(userSkills, gaps), [userSkills, gaps]);
-  const overlaps = useMemo(() => getOverlapAnalysis(userSkills, targetSkills), [userSkills, targetSkills]);
-  const recommendations = useMemo(() => getRecommendations(gaps, careerPaths), [gaps, careerPaths]);
+  const careerPaths = useMemo(() => getCareerPaths(), []);
+  const overlaps = useMemo(() => getOverlapAnalysis(), []);
+  const recommendations = useMemo(() => getRecommendations(), []);
   const auditLogs = useMemo(() => getAuditLogs(), []);
   const trends = useMemo(() => getMonthlyTrends(), []);
 

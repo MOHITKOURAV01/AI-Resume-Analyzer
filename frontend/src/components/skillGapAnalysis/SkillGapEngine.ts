@@ -150,7 +150,7 @@ function generateLearningResources(skillName: string): LearningResource[] {
     GraphQL: [
       { resourceId: 'lr14', title: 'GraphQL with React', provider: 'Udemy', format: 'COURSE', url: '#', rating: 4.6, duration: '14 hours', cost: '$19.99', relevanceScore: 91, difficulty: 'INTERMEDIATE' },
     ],
-    CI/CD: [
+    'CI/CD': [
       { resourceId: 'lr15', title: 'CI/CD Pipelines', provider: 'LinkedIn Learning', format: 'COURSE', url: '#', rating: 4.4, duration: '8 hours', cost: '$29.99/mo', relevanceScore: 86, difficulty: 'INTERMEDIATE' },
       { resourceId: 'lr16', title: 'GitHub Actions Mastery', provider: 'Project', format: 'PROJECT', url: '#', rating: 4.5, duration: '15 hours', cost: 'Free', relevanceScore: 89, difficulty: 'INTERMEDIATE' },
     ],

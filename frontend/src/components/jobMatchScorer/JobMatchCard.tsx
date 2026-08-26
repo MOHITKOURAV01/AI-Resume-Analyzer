@@ -1,8 +1,10 @@
 import React from 'react';
+import type {
+  JobPosting, MatchScoreBreakdown, RecommendedEdit,
+  CompanyMatchHistory, JobKeyword, SectionScore
+} from './jobMatchTypes';
 import {
-  JobPosting, ResumeJobMatch, MatchScoreBreakdown, RecommendedEdit,
-  CompanyMatchHistory, JobKeyword, SectionScore,
-  GRADE_COLORS, CATEGORY_COLORS, STATUS_COLORS, RELEVANCE_COLORS,
+  GRADE_COLORS, CATEGORY_COLORS, RELEVANCE_COLORS,
   INDUSTRY_ICONS, WORKMODE_ICONS, formatSalary
 } from './jobMatchTypes';
 

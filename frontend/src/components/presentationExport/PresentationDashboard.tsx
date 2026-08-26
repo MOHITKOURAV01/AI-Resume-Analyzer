@@ -10,7 +10,7 @@ import {
   getResumeAnalytics, getSectionOptimizations, getDesignElements, getAuditLogs, getMonthlyTrends
 } from './PresentationEngine';
 import {
-  STYLE_COLORS, STYLE_ICONS, FORMAT_COLORS, SCHEME_COLORS, LAYOUT_ICONS, getScoreColor, formatFileSize
+  STYLE_COLORS, FORMAT_COLORS, formatFileSize
 } from './presentationTypes';
 
 const TABS = ['Overview', 'Templates', 'Sections', 'Design Elements', 'Exports', 'Optimization', 'Analytics', 'Timeline'];
@@ -29,12 +29,12 @@ const PresentationDashboard: React.FC = () => {
   const auditLogs = useMemo(() => getAuditLogs(), []);
   const trends = useMemo(() => getMonthlyTrends(), []);
 
-  const selectedTemplate = templates.find(t => t.templateId === selectedTemplateId);
+
 
   const avgPresentationScore = Math.round(scores.reduce((s, sc) => s + sc.score, 0) / scores.length);
 
   // Chart data
-  const formatDonut = Object.entries(analytics.formatBreakdown).filter(([, v]) => v > 0).map(([label, value], i) => ({
+  const formatDonut = Object.entries(analytics.formatBreakdown).filter(([, v]) => v > 0).map(([label, value]) => ({
     label, value, color: FORMAT_COLORS[label as keyof typeof FORMAT_COLORS] || '#6b7280'
   }));
 
@@ -129,7 +129,7 @@ const PresentationDashboard: React.FC = () => {
       {activeTab === 'Sections' && (
         <div style={{ maxWidth: 700 }}>
           <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>📄 Section Configuration</h3>
-          {sectionConfigs.map((section, i) => (
+          {sectionConfigs.map((section) => (
             <div key={section.sectionId} style={{
               background: '#1e1e2e', borderRadius: 10, padding: 14, marginBottom: 10,
               borderLeft: `4px solid ${section.visibility === 'VISIBLE' ? '#22c55e' : section.visibility === 'CONDENSED' ? '#f59e0b' : '#ef4444'}`
@@ -201,7 +201,7 @@ const PresentationDashboard: React.FC = () => {
             </div>
             <div style={{ background: '#1e1e2e', borderRadius: 12, padding: 20 }}>
               <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'rgba(255,255,255,0.8)' }}>Optimization Score History</h3>
-              <TrendLine lines={[{ label: 'Score', data: analytics.optimizationHistory.map(h => h.score), color: '#22c55e' }]} labels={analytics.optimizationHistory.map(h => h.month)} width={400} height={160} />
+              <TrendLine lines={[{ label: 'Score', data: analytics.optimizationHistory.map(h => h.score), color: '#22c55e' }]} labels={analytics.optimizationHistory.map(h => h.date)} width={400} height={160} />
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import React from 'react';
-import {
-  UserSkill, SkillGap, CATEGORY_COLORS, PROFICIENCY_COLORS, SEVERITY_COLORS
-} from './skillGapTypes';
+// import {
+//   UserSkill, SkillGap, CATEGORY_COLORS, PROFICIENCY_COLORS, SEVERITY_COLORS
+// } from './skillGapTypes';
 
 interface BarChartProps {
   data: { label: string; value: number; color?: string }[];

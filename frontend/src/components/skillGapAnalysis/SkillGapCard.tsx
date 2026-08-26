@@ -1,7 +1,10 @@
 import React from 'react';
-import {
+import type {
   UserSkill, SkillGap, CareerPath, LearningResource, CareerRecommendation,
-  SkillOverlapAnalysis, PROFICIENCY_COLORS, SEVERITY_COLORS, CATEGORY_COLORS,
+  SkillOverlapAnalysis
+} from './skillGapTypes';
+import {
+  PROFICIENCY_COLORS, SEVERITY_COLORS, CATEGORY_COLORS,
   CATEGORY_ICONS, DIFFICULTY_COLORS, FORMAT_ICONS, formatSalary
 } from './skillGapTypes';
 
@@ -172,7 +175,7 @@ export const CareerPathCard: React.FC<CareerPathCardProps> = ({ path }) => (
 
     <div style={{ borderTop: '1px solid #2d2d3f', paddingTop: 12 }}>
       <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: 8 }}>Career Steps</div>
-      {path.steps.map((step, i) => (
+      {path.steps.map((step) => (
         <div key={step.stepId} style={{ display: 'flex', gap: 10, marginBottom: 8, fontSize: 12 }}>
           <div style={{
             width: 24, height: 24, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',

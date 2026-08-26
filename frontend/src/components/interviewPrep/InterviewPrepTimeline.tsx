@@ -1,5 +1,5 @@
 import React from 'react';
-import { PrepAuditLog } from './interviewPrepTypes';
+import type { PrepAuditLog } from './interviewPrepTypes';
 
 interface InterviewPrepTimelineProps { logs: PrepAuditLog[]; }
 

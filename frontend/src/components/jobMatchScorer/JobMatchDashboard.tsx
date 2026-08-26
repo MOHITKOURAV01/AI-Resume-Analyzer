@@ -9,8 +9,7 @@ import {
   getJobPostings, matchResumeToJob, getCompanyHistory, getMatchTrends, getAuditLogs
 } from './JobMatchEngine';
 import {
-  GRADE_COLORS, CATEGORY_COLORS, STATUS_COLORS, WORKMODE_ICONS,
-  INDUSTRY_ICONS, formatSalary
+  GRADE_COLORS
 } from './jobMatchTypes';
 
 const TABS = ['Overview', 'Job Listings', 'Match Details', 'Keywords', 'Recommendations', 'History', 'Timeline'];

@@ -1,4 +1,4 @@
-import {
+import type {
   ResumeTemplate, ResumeSectionConfig, ExportJob, PresentationScore,
   ResumeAnalytics, SectionOptimization, DesignElement, PresentationAuditLog
 } from './presentationTypes';

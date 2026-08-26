@@ -1,5 +1,5 @@
 import React from 'react';
-import { PresentationAuditLog } from './presentationTypes';
+import type { PresentationAuditLog } from './presentationTypes';
 
 interface PresentationTimelineProps { logs: PresentationAuditLog[]; }
 

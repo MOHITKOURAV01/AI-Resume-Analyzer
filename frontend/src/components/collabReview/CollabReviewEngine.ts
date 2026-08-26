@@ -1,6 +1,6 @@
-import {
+import type {
   Reviewer, ReviewRequest, FeedbackItem, InlineComment, ReviewSummary,
-  ReviewComparison, ReviewerLeaderboard, CollaborationActivityLog, ReviewAuditLog
+  ReviewerLeaderboard, CollaborationActivityLog, ReviewAuditLog
 } from './collabReviewTypes';
 
 export function getReviewers(): Reviewer[] {

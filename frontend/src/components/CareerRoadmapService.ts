@@ -10,16 +10,18 @@
  * @author Enterprise AI Resume Architecture Team
  */
 
-import {
+// 1. Split the runtime class import from the type-only imports
+import { CareerRoadmapState } from './CareerRoadmapModel';
+import type {
   CareerTrack,
-  CareerPathTrajectory,
-  CareerRoadmapState
+  CareerPathTrajectory
 } from './CareerRoadmapModel';
 
 export class CareerRoadmapService {
   private state: CareerRoadmapState;
 
   constructor(state?: CareerRoadmapState) {
+    // 2. This now safely evaluates at runtime
     this.state = state || new CareerRoadmapState();
   }
 

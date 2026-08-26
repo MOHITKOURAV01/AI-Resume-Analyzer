@@ -1,5 +1,4 @@
 import React from 'react';
-import { MatchTrend, GRADE_COLORS } from './jobMatchTypes';
 
 interface BarChartProps {
   data: { label: string; value: number; color?: string }[];

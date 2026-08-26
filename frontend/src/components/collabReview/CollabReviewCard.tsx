@@ -1,9 +1,23 @@
 import React from 'react';
+// 1. Type-only imports (stripped out during compilation)
+import type {
+  Reviewer, 
+  ReviewRequest, 
+  FeedbackItem, 
+  InlineComment,
+  ReviewerLeaderboard, 
+  CollaborationActivityLog
+} from './collabReviewTypes';
+
+// 2. Runtime values (compiled into real JavaScript for your UI)
 import {
-  Reviewer, ReviewRequest, FeedbackItem, InlineComment, ReviewSummary,
-  ReviewerLeaderboard, CollaborationActivityLog,
-  STATUS_COLORS, ROLE_COLORS, SEVERITY_COLORS, CATEGORY_ICONS,
-  ROLE_ICONS, ACTIVITY_ICONS, getScoreColor
+  STATUS_COLORS, 
+  ROLE_COLORS, 
+  SEVERITY_COLORS, 
+  CATEGORY_ICONS,
+  ROLE_ICONS, 
+  ACTIVITY_ICONS, 
+  getScoreColor
 } from './collabReviewTypes';
 
 interface StatCardProps {
