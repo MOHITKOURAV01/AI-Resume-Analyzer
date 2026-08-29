@@ -3,7 +3,7 @@ import type { AuthUser } from '../hooks/useAuth'
 import { Link, useLocation } from 'react-router-dom'
 
 interface NavbarProps {
-  theme: 'light' | 'dark'
+  theme: 'light' | 'dark' | 'high-contrast'
   toggleTheme: () => void
   user: AuthUser | null
   onLogin: () => void
@@ -137,9 +137,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               closeMenu()
             }}
             aria-label="Toggle theme"
-            aria-pressed={theme === 'dark'}
+            aria-pressed={theme !== 'light'}
           >
-            {theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+            {theme === 'light' ? '🌙 Dark Mode' : theme === 'dark' ? '👁️ High Contrast' : '☀️ Light Mode'}
           </button>
 
           {user ? (

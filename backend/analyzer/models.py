@@ -2,6 +2,7 @@ import secrets
 import uuid
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -381,3 +382,32 @@ def invalidate_role_skills_cache(sender, **kwargs):
 @receiver(m2m_changed, sender=Role.skills.through)
 def invalidate_m2m_cache(sender, **kwargs):
     cache.delete("role_skills_dict")
+
+
+class ApplicationLog(models.Model):
+    """
+    Model to track job applications and their outcomes for A/B testing resume versions.
+    """
+    STATUS_CHOICES = [
+        ('applied', 'Applied'),
+        ('screening', 'Screening'),
+        ('interviewed', 'Interviewed'),
+        ('rejected', 'Rejected'),
+        ('offered', 'Offered'),
+    ]
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='application_logs')
+    resume_analysis = models.ForeignKey('ResumeAnalysis', on_delete=models.SET_NULL, null=True, related_name='application_logs')
+    company_name = models.CharField(max_length=255)
+    job_title = models.CharField(max_length=255)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='applied')
+    applied_date = models.DateField(auto_now_add=True)
+    notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['-applied_date']
+        verbose_name = 'Application Log'
+        verbose_name_plural = 'Application Logs'
+
+    def __str__(self):
+        return f"{self.job_title} at {self.company_name} - {self.status}"

@@ -7,7 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
-- Structural ATS resume formatting checks analyzing document page length, standard section presence, table/column layout parsing, and typography cleanliness with actionable tips (#80).
+- Unified reusable Button component with primary, secondary, ghost, outline, danger, and accent variants, size modifiers, pill shape, accessible loading spinner, and consistent hover/active/focus/disabled states (#102).
+- Added drag-and-drop resume upload functionality to compare tools allowing drag-and-drop directly on the file inputs (#20).
+- Bulk resume analysis allowing multi-file upload (.pdf, .docx, .txt), candidate ranking summary table, and detailed inspection view per resume (#57).
 - Granular consent toggles in Account Settings and initial banner for optional data collection (analytics and AI resume roast mode), strictly opt-in and off by default (#536).
 - Auto-save Job Description text as a debounced draft in local storage to prevent accidental data loss upon page refresh or navigation (#533).
 - Opt-in playful "Resume Roast" alternate feedback tone switch in suggestions section with humorously constructive feedback while remaining constructive (#497).

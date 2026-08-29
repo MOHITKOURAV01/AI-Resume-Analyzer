@@ -9,6 +9,7 @@ from .views import (
     upload_resume,
     compare_uploads,
     signup,
+    check_availability,
     analysis_history,
     history_detail,
     clear_user_history,
@@ -24,6 +25,7 @@ from .views import (
     social_auth_view,
     profile_avatar_view,
     compare_bulk_jds_view,
+    compare_bulk_resumes_view,
     skills_leaderboard_view,
     unsubscribe_digest_view,
     task_status,
@@ -32,19 +34,39 @@ from .views import (
     manage_webhooks,
     webhook_detail,
     test_webhook,
-    import_jd_url_view,
+    preview_experience_level_view,
     captcha_challenge_view,
 )
 from .badge_views import manage_resume_badge, resume_score_badge
 
+# The feature modules below were written with views, serializers and tests, and
+# were never given a path. Everything under `analyzer/` matches the URLs the
+# frontend has been requesting all along — see `tests_api_routes.ROUTES`.
+from .bullet_views import BulletOptimizeView
+from .diff_views import SemanticDiffView
+from .interview_views import InterviewQuestionGenerateView
+from .layout_views import LayoutAnalysisView
+from .multilingual_views import LanguageDetectionView, TranslationView
+
+# Same again, for the five features merged in #929-#933. Seven view classes,
+# no paths. These sit at the top level rather than under `analyzer/` because
+# that is where the frontend and the view docstrings already agree they are —
+# see the ROUTES table in tests_api_routes.py for who calls each one.
+from .ab_testing_views import ABTestingStatsView, LogApplicationView
+from .accessibility_views import AccessibilityCheckView
+from .cliche_views import ClicheDetectorView
+from .linkedin_views import LinkedInOptimizationView
+from .sanitizer_views import FileMetadataView, SanitizeResumeView
+
 urlpatterns = [
     path("upload/", upload_resume),
-    path("import-jd-url/", import_jd_url_view),
+    path("preview-level/", preview_experience_level_view),
     path("status/<str:task_id>/", task_status),
     path("mock-interview/", mock_interview_view),
     path("compare-uploads/", compare_uploads),
     path("analyze-jd/", analyze_jd_view),
     path("compare-bulk-jds/", compare_bulk_jds_view),
+    path("compare-bulk-resumes/", compare_bulk_resumes_view),
     path("profile/", user_profile_view),
     path("profile/avatar/", profile_avatar_view, name="profile_avatar"),
     path("contact/", contact_us_view),
@@ -55,6 +77,8 @@ urlpatterns = [
     path("captcha/", captcha_challenge_view),
 
     path("auth/signup/", signup),
+    path("auth/check-availability/", check_availability, name="check_availability"),
+    path("auth/check-availability", check_availability),
     path("auth/login/", CustomTokenObtainPairView.as_view()),
     path("auth/oauth/", social_auth_view, name="social_auth"),
     path("auth/refresh/", TokenRefreshView.as_view()),
@@ -80,4 +104,88 @@ urlpatterns = [
     path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset_request'),
     path('password-reset-confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path("admin/stats/", admin_stats_view, name="admin_stats"),
+
+    # Resume-improvement tools.
+    #
+    # These sit under an `analyzer/` prefix rather than alongside the routes
+    # above. That is not a preference: `frontend/src/services/`,
+    # `frontend/src/hooks/useInterviewQuestions.ts` and
+    # `components/ResumeDiffViewer.tsx` already post to these exact paths, and
+    # moving the frontend instead would break any client already deployed
+    # against them.
+    path(
+        "analyzer/optimize-bullets/",
+        BulletOptimizeView.as_view(),
+        name="optimize_bullets",
+    ),
+    path(
+        "analyzer/semantic-diff/",
+        SemanticDiffView.as_view(),
+        name="semantic_diff",
+    ),
+    path(
+        "analyzer/generate-interview-questions/",
+        InterviewQuestionGenerateView.as_view(),
+        name="generate_interview_questions",
+    ),
+    path(
+        "analyzer/layout-analysis/",
+        LayoutAnalysisView.as_view(),
+        name="layout_analysis",
+    ),
+    path(
+        "analyzer/detect-language/",
+        LanguageDetectionView.as_view(),
+        name="detect_language",
+    ),
+    path(
+        "analyzer/translate/",
+        TranslationView.as_view(),
+        name="translate_resume_text",
+    ),
+
+    # Resume A/B testing (#925).
+    path(
+        "log-application/",
+        LogApplicationView.as_view(),
+        name="log_application",
+    ),
+    path(
+        "ab-testing-stats/",
+        ABTestingStatsView.as_view(),
+        name="ab_testing_stats",
+    ),
+
+    # Screen-reader compliance (#926).
+    path(
+        "check-accessibility/",
+        AccessibilityCheckView.as_view(),
+        name="check_accessibility",
+    ),
+
+    # Cliché detection and modernisation.
+    path(
+        "detect-cliches/",
+        ClicheDetectorView.as_view(),
+        name="detect_cliches",
+    ),
+
+    # LinkedIn profile optimisation.
+    path(
+        "optimize-linkedin/",
+        LinkedInOptimizationView.as_view(),
+        name="optimize_linkedin",
+    ),
+
+    # Metadata sanitiser and privacy scrubber (#924).
+    path(
+        "file-metadata/",
+        FileMetadataView.as_view(),
+        name="file_metadata",
+    ),
+    path(
+        "sanitize-resume/",
+        SanitizeResumeView.as_view(),
+        name="sanitize_resume",
+    ),
 ]

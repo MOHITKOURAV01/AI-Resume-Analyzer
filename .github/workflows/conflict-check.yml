@@ -1,0 +1,55 @@
+name: CI — Check for Git merge conflict markers
+
+on:
+  pull_request:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  check-conflict-markers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine files to scan
+        run: |
+          set -euo pipefail
+          echo "Event: $GITHUB_EVENT_NAME"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            BASE_REF="${{ github.event.pull_request.base.ref }}"
+            git fetch origin "$BASE_REF" --depth=1 || true
+            git diff --name-only "origin/$BASE_REF"...HEAD > files_to_scan.txt || true
+          else
+            git diff --name-only HEAD~1..HEAD > files_to_scan.txt || true
+          fi
+
+          if [ ! -s files_to_scan.txt ]; then
+            echo "No changed files detected; scanning all tracked files."
+            git ls-files > files_to_scan.txt
+          fi
+          echo "Files to scan:"
+          sed -n '1,200p' files_to_scan.txt || true
+
+      - name: Scan for merge-conflict markers and fail fast
+        run: |
+          set -euo pipefail
+          found=0
+          while IFS= read -r file; do
+            case "$file" in
+              .git/*|node_modules/*|dist/*|build/*) continue ;;
+            esac
+            [ -f "$file" ] || continue
+            if grep -nH -e '^<<<<<<<' -e '^=======' -e '^>>>>>>>' "$file"; then
+              found=1
+            fi
+          done < files_to_scan.txt
+
+          if [ "$found" -eq 1 ]; then
+            echo "::error ::Merge conflict markers detected. Please resolve them and push again."
+            exit 1
+          fi
+          echo "No merge conflict markers found."
