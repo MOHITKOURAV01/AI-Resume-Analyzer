@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import axios from 'axios'
 import './index.css'
@@ -27,8 +27,38 @@ import { ScoreBreakdown, type ScoreBreakdownData } from './components/ScoreBreak
 import { FormattingChecks, type FormattingChecksData } from './components/FormattingChecks'
 import { WhatsNewModal } from './components/WhatsNewModal'
 import { shouldShowWhatsNew } from './data/whatsNewReleases'
+import ReleaseNotes from './pages/ReleaseNotes'
 import { ShareResult } from './components/ShareResult'
 import { Button } from './components/Button'
+import {
+  AnalysisAbortedError,
+  abortableSleep,
+  pollAnalysisTask,
+} from './utils/pollAnalysisTask'
+
+/**
+ * The subset of the analysis payload this screen reads.
+ *
+ * Not the full response — the point is that every field `runAnalysis` pulls
+ * off the result is declared, so adding a `setX(result.y)` line for an
+ * undeclared `y` is a compile error rather than an `undefined` at runtime.
+ * `timeline` and `partial_skills` landed on `main` while this branch was open
+ * and were caught exactly that way on the rebase.
+ */
+interface AnalysisResult {
+  id?: number
+  score: number
+  score_breakdown?: ScoreBreakdownData | null
+  formatting_checks?: FormattingChecksData | null
+  timeline?: TimelineData | null
+  skills_found?: string[]
+  suggestions?: string[]
+  matched_skills?: string[]
+  partial_skills?: PartialSkillItem[]
+  missing_skills?: string[]
+  resume_text?: string
+  interview_questions?: string[]
+}
 
 import CareerRoadmapPlanner from './components/CareerRoadmapPlanner'
 import ResumeCompareDashboard from './components/ResumeCompareDashboard'
@@ -482,6 +512,17 @@ function App() {
     setTheme((prev) => (prev === 'light' ? 'dark' : prev === 'dark' ? 'high-contrast' : 'light'))
   }
 
+  // Holds the in-flight analysis poll so it can be abandoned when a new run
+  // starts or the component unmounts. Previously the loop had no owner and
+  // simply kept polling after the user navigated away.
+  const pollAbortRef = useRef<AbortController | null>(null)
+
+  useEffect(() => {
+    return () => {
+      pollAbortRef.current?.abort()
+    }
+  }, [])
+
   const getRetryDelay = (attemptNumber: number): number => {
     // Exponential backoff: 2^attemptNumber seconds, capped at 30 seconds
     const delay = Math.pow(2, attemptNumber)
@@ -521,17 +562,29 @@ function App() {
       // See #706.
       const analysisHeaders = analysisTokenHeaders(res.data.analysis_token)
 
-      let result = null
-      while (true) {
-        const statusRes = await api.get(`/api/status/${taskId}/`, { headers: analysisHeaders })
-        if (statusRes.data.state === 'SUCCESS') {
-          result = statusRes.data.result
-          break
-        } else if (statusRes.data.state === 'FAILURE') {
-          throw new Error(statusRes.data.error || 'Analysis failed')
-        }
-        await new Promise((r) => setTimeout(r, 1000))
-      }
+      // Any previous run is abandoned before this one starts, so two
+      // analyses cannot race to write the result state.
+      pollAbortRef.current?.abort()
+      const pollController = new AbortController()
+      pollAbortRef.current = pollController
+
+      const result = (await pollAnalysisTask(
+        taskId,
+        {
+          // `api`, not a bare axios call: it is the client that refreshes an
+          // expired access token (#633), and an analysis can outlive one.
+          fetchStatus: async (id, signal) => {
+            const statusRes = await api.get(`/api/status/${id}/`, {
+              signal,
+              headers: analysisHeaders,
+            })
+            return statusRes.data
+          },
+          sleep: abortableSleep,
+          now: () => Date.now(),
+        },
+        { signal: pollController.signal }
+      )) as AnalysisResult
 
       setScore(result.score)
       setScoreBreakdown(result.score_breakdown || null)
@@ -569,6 +622,12 @@ function App() {
         await fetchDbHistory()
       }
     } catch (error: unknown) {
+      // The run was superseded or the component went away. There is nobody to
+      // tell, and the state it would write belongs to a newer run.
+      if (error instanceof AnalysisAbortedError) {
+        return
+      }
+
       console.error(error)
 
       let errorMsg = 'Unknown error'
@@ -816,6 +875,15 @@ function App() {
     )
   }
 
+  if (location.pathname === '/release-notes') {
+    return (
+      <>
+        <ReleaseNotes />
+        <Footer />
+      </>
+    )
+  }
+
   const displayScore = previewData ? previewData.score : score
   const displayScoreBreakdown = previewData ? previewData.scoreBreakdown : scoreBreakdown
   const displayMatchedSkills = previewData ? previewData.matchedSkills : matchedSkills
@@ -950,6 +1018,210 @@ function App() {
                   color: 'var(--heading-text, #fff)',
                 }}
               >
+                💼 Target Job Description <span style={{ fontSize: '0.8rem', fontWeight: 'normal', color: 'var(--muted-text, #94a3b8)' }}>(Optional)</span>
+              </label>
+              {isDraftSaved && (
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'var(--color-primary, #6366f1)',
+                    color: '#fff',
+                    fontWeight: '700',
+                    fontSize: '0.8rem',
+                  }}
+                >
+                  1
+                </span>
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: '1.05rem',
+                    fontWeight: '600',
+                    color: 'var(--heading-text, #fff)',
+                  }}
+                >
+                  Set Career Track &amp; Experience
+                </h3>
+              </div>
+
+              {/* Role and Experience Level Selectors */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                  gap: '14px',
+                }}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label
+                    htmlFor="roleSelect"
+                    style={{
+                      fontWeight: '600',
+                      fontSize: '0.85rem',
+                      color: 'var(--heading-text, #fff)',
+                    }}
+                  >
+                    Target Career Track:
+                  </label>
+                  <select
+                    id="roleSelect"
+                    value={targetRole}
+                    onChange={(e) => setTargetRole(e.target.value)}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--surface-border, rgba(255, 255, 255, 0.15))',
+                      background: 'var(--control-bg, rgba(255, 255, 255, 0.05))',
+                      color: 'var(--control-text, #fff)',
+                      fontSize: '0.9rem',
+                    }}
+                  >
+                    <option value="Frontend Developer">Frontend Developer</option>
+                    <option value="Backend Developer">Backend Developer</option>
+                    <option value="Data Analyst">Data Analyst</option>
+                  </select>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label
+                    htmlFor="experienceLevelSelect"
+                    style={{
+                      fontWeight: '600',
+                      fontSize: '0.85rem',
+                      color: 'var(--heading-text, #fff)',
+                    }}
+                  >
+                    Experience Level:
+                  </label>
+                  <select
+                    id="experienceLevelSelect"
+                    value={experienceLevel}
+                    onChange={(e) => setExperienceLevel(e.target.value)}
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--surface-border, rgba(255, 255, 255, 0.15))',
+                      background: 'var(--control-bg, rgba(255, 255, 255, 0.05))',
+                      color: 'var(--control-text, #fff)',
+                      fontSize: '0.9rem',
+                    }}
+                  >
+                    <option value="Junior">Junior (0-2 yrs)</option>
+                    <option value="Mid-Level">Mid-Level (2-5 yrs)</option>
+                    <option value="Senior">Senior (5+ yrs)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Job Description Draft Input (#533) */}
+              <div style={{ marginTop: '16px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '6px',
+                  }}
+                >
+                  <label
+                    htmlFor="jobDescriptionInput"
+                    style={{
+                      fontWeight: '600',
+                      fontSize: '0.85rem',
+                      color: 'var(--heading-text, #fff)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    💼 Target Job Description{' '}
+                    <span
+                      style={{
+                        fontSize: '0.8rem',
+                        fontWeight: 'normal',
+                        color: 'var(--muted-text, #94a3b8)',
+                      }}
+                    >
+                      (Optional)
+                    </span>
+                  </label>
+                  {isDraftSaved && (
+                    <span
+                      style={{
+                        fontSize: '0.75rem',
+                        color: '#4ade80',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                    >
+                      💾 Draft auto-saved
+                    </span>
+                  )}
+                </div>
+                <textarea
+                  id="jobDescriptionInput"
+                  className="custom-textarea"
+                  placeholder="Paste job description text here to tailor matching and identify specific missing skills..."
+                  value={jobDescription}
+                  onChange={(e) => setJobDescription(e.target.value)}
+                  maxLength={MAX_CHARS}
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    minHeight: '76px',
+                    fontSize: '0.88rem',
+                    resize: 'vertical',
+                    boxSizing: 'border-box',
+                  }}
+                />
+                {(() => {
+                  const wordCount = jobDescription.trim()
+                    ? jobDescription.trim().split(/\s+/).length
+                    : 0
+                  if (wordCount > 0 && wordCount < 50) {
+                    return (
+                      <div
+                        style={{
+                          marginTop: '8px',
+                          padding: '8px 12px',
+                          backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                          border: '1px solid rgba(234, 179, 8, 0.3)',
+                          borderRadius: '6px',
+                          fontSize: '0.8rem',
+                          color: '#facc15',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                        }}
+                      >
+                        ⚠️{' '}
+                        <span>
+                          Friendly tip: Very short job descriptions might yield less accurate
+                          analysis. Consider pasting the full description!
+                        </span>
+                      </div>
+                    )
+                  }
+                  return null
+                })()}
+                <div
+                  style={{
+                    fontSize: '0.75rem',
+                    color: '#4ade80',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  💾 Draft auto-saved
+                </span>
+              )}
                 Set Career Track &amp; Experience
               </h3>
             </div>
@@ -1251,7 +1523,7 @@ function App() {
                 </div>
               )}
 
-              <AtsScore score={displayScore!}/>
+              <AtsScore score={displayScore!} />
 
               <ScoreBreakdown breakdown={displayScoreBreakdown} />
 
@@ -1686,7 +1958,12 @@ function App() {
         </div>{' '}
         {/* closes .main-card */}
       </div>{' '}
-      <Footer onOpenWhatsNew={() => setShowWhatsNew(true)} />
+      <Footer
+        onOpenWhatsNew={() => {
+          window.history.pushState({}, '', '/release-notes')
+          window.dispatchEvent(new PopStateEvent('popstate'))
+        }}
+      />
       <WhatsNewModal isOpen={showWhatsNew} onClose={() => setShowWhatsNew(false)} />
     </>
   )

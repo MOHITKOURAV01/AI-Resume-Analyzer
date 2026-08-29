@@ -46,6 +46,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Every Python file must parse
+        # `manage.py check` does not import migration modules, so a migration
+        # that does not compile passes it and then kills `migrate`, `test` and
+        # `showmigrations` on import. That is not hypothetical: 58e2d84 left
+        # `feature/document-semver-process-756` as line 1 of
+        # 0021_merge_0020_merge_20260824_0025_0020_resumebadge.py and every
+        # check in this workflow except the suite itself stayed green (#872).
+        #
+        # compileall parses every .py under the app without importing it, so
+        # it is cheap and cannot be fooled by what does or does not get
+        # imported at check time.
+        run: python -m compileall -q analyzer resume_analyzer manage.py
+
       - name: Django system checks
         run: python manage.py check
 

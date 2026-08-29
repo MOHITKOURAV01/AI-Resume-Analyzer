@@ -105,13 +105,24 @@ class TranslationServiceTestCase(TestCase):
         "#914: a paragraph over MAX_CHUNK_SIZE is emitted whole",
     )
     def test_chunking_long_text(self):
-        # Create a text longer than MAX_CHUNK_SIZE (4000 chars)
+        # Two paragraphs, each on its own larger than MAX_CHUNK_SIZE (4000).
+        #
+        # This asserted `len(chunks) == 2` alongside `len(chunks[0]) <= 4000`,
+        # which nothing can satisfy: 9000 characters of content do not fit in
+        # two chunks of 4000. The count is now derived from the limit instead
+        # of pinned to a number, and every chunk is checked rather than the
+        # first two.
         long_text = "A" * 4500 + "\n\n" + "B" * 4500
         chunks = self.service._chunk_text(long_text)
 
-        self.assertEqual(len(chunks), 2)
-        self.assertTrue(len(chunks[0]) <= 4000)
-        self.assertTrue(len(chunks[1]) <= 4000)
+        self.assertGreaterEqual(len(chunks), 3)
+        for index, chunk in enumerate(chunks):
+            self.assertLessEqual(
+                len(chunk),
+                TranslationService.MAX_CHUNK_SIZE,
+                f"chunk {index} is {len(chunk)} characters, over the limit the "
+                "chunking exists to respect",
+            )
 
 
 class MultilingualSerializersTestCase(TestCase):

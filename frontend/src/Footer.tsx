@@ -188,9 +188,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenWhatsNew }) => {
                 </button>
               ) : (
                 <a
-                  href={`${REPO_URL}/blob/main/CHANGELOG.md`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/release-notes"
                   style={{
                     color: '#94a3b8',
                     fontSize: 'var(--font-size-sm)',
